@@ -1,12 +1,8 @@
----
-output:
-  html_document:
-    keep_md: yes
----
 # Reproducible Research: Peer Assessment 1
 
 First of all, load required libraries and remove warnings to avoid unwanted text in the output.
-```{r}
+
+```r
 options (warn=-1)
 library(ggplot2)
 library(plyr)
@@ -15,9 +11,24 @@ library(plyr)
 ### Loading and preprocessing the data
 
 First step, unzip the data and read the 'csv' file. Print a summary to have an idea about the data and, finally, reformat the date information from 'factor' to 'date' type.
-```{r}
+
+```r
 data <- read.csv(unzip("activity.zip"))
 summary(data)
+```
+
+```
+##      steps               date          interval   
+##  Min.   :  0.0   2012-10-01:  288   Min.   :   0  
+##  1st Qu.:  0.0   2012-10-02:  288   1st Qu.: 589  
+##  Median :  0.0   2012-10-03:  288   Median :1178  
+##  Mean   : 37.4   2012-10-04:  288   Mean   :1178  
+##  3rd Qu.: 12.0   2012-10-05:  288   3rd Qu.:1766  
+##  Max.   :806.0   2012-10-06:  288   Max.   :2355  
+##  NA's   :2304    (Other)   :15840
+```
+
+```r
 data$date <- as.Date(data$date, format = "%Y-%m-%d")
 ```
 
@@ -29,23 +40,41 @@ From now on, the questions included in the assigment are going to be included an
 
 To plot the histogram, the number of steps per date are stored in the variable 'steps_day'. As it is stated in the assignement, NA are ignored. Attributes are renamed to be meaningfull and, finally, the histogram plot is created using ggplot2.
 
-```{r}
+
+```r
 steps_day <- aggregate(data$steps, by= list(data$date), sum)
 names(steps_day) <- c("date", "total_steps")
 ggplot(steps_day, aes(x=total_steps)) + geom_histogram(binwidth = 1000, colour="white", fill="#FFCC66") + labs(x = "Number of steps") + labs(y = "Frequency") + labs(title = "Histogram of the total number of steps in a date")
 ```
 
+![plot of chunk unnamed-chunk-3](./PA1_template_files/figure-html/unnamed-chunk-3.png) 
+
 2. *Calculate and report the mean and median total number of steps taken per day*
 
 First, a summary is included to provide a more complete idea of the data. This summay include information regarding mean and median.
 
-```{r}
+
+```r
 summary(steps_day)
+```
+
+```
+##       date             total_steps   
+##  Min.   :2012-10-01   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 8841  
+##  Median :2012-10-31   Median :10765  
+##  Mean   :2012-10-31   Mean   :10766  
+##  3rd Qu.:2012-11-15   3rd Qu.:13294  
+##  Max.   :2012-11-30   Max.   :21194  
+##                       NA's   :8
+```
+
+```r
 mean_steps_day <- mean(steps_day$total_steps, na.rm = TRUE)
 median_steps_day <- median(steps_day$total_steps, na.rm = TRUE)
 ```
 
-Even though, to simplify the task, the mean number of steps is `r mean_steps_day` and the median is `r median_steps_day`.
+Even though, to simplify the task, the mean number of steps is 1.0766 &times; 10<sup>4</sup> and the median is 10765.
 
 ### What is the average daily activity pattern?
 
@@ -55,19 +84,28 @@ It is important to clarify the question asked, as in the forums there has been s
 
 The following R code, follows the previous steps and create the plot (using ggplot2).
 
-```{r}
+
+```r
 steps_interval <- aggregate(data$steps, by= list(data$interval), FUN=mean, na.rm=TRUE)
 names(steps_interval) <- c("interval", "avg_steps")
 ggplot(steps_interval, aes(x=interval, y=avg_steps)) + geom_line(colour = "#0000FF") + labs(x = "5-minutes time interval") + labs(y = "Average number of steps") + labs(title = "Average number of steps per 5-minute time interval")
 ```
 
+![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
+
 2. *Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
 
 To obtain the interval with the maximun number of steps, we proceed as follows: i) obtain the maximun number of steps and ii) subset the data to only the intervals that equals the maximun of i) 
 
-```{r}
+
+```r
 max_step <- max(steps_interval$avg_steps)
 steps_interval[steps_interval$avg_steps == max_step, ]
+```
+
+```
+##     interval avg_steps
+## 104      835     206.2
 ```
 
 ### Imputing missing values
@@ -76,11 +114,12 @@ steps_interval[steps_interval$avg_steps == max_step, ]
 
 As there are no NA values neither in 'date' nor 'interval' attributes, it is only neccesary to estimate the number of rows with NA in 'steps' attribute.
 
-```{r}
+
+```r
 NA_num <- nrow(data[is.na(data$steps) == TRUE, ])
 ```
 
-The number of NA is `r NA_num`.
+The number of NA is 2304.
 
 2. *Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.*
 
@@ -88,7 +127,8 @@ The number of NA is `r NA_num`.
 
 To achieve the required task 2 and 3, first, a copy of 'data' called 'data_full' is created. A new attribute is included for every row filled with the average steps grouped per interval. Finally, rows without direct information of steps in 'data_full' are filled with the average value for that interval. 
 
-```{r}
+
+```r
 data_full <- data
 data_full$averages <- steps_interval$avg_steps
 data_full$steps[is.na(data_full$steps)] <- 
@@ -99,11 +139,27 @@ data_full$steps[is.na(data_full$steps)] <-
 
 Once the data have no 'NA', it is possible to create a new variable 'steps_day_full' with the sum of the steps by 'date'. The names of the variables are renamed to be meaninful. Finally, both a summary of the information and a histogram, as required by the assigment, are printed.
 
-```{r}
+
+```r
 steps_day_full <- aggregate(data_full$steps, by= list(data_full$date), sum)
 names(steps_day_full) <- c("date", "total_steps")
 ggplot(steps_day_full, aes(x=total_steps)) + geom_histogram(binwidth = 1000, colour="white", fill="#BBAA00") + labs(x = "Number of steps") + labs(y = "Frequency") + labs(title = "Histogram of the total number of steps in a date (data with NA filled)")
+```
+
+![plot of chunk unnamed-chunk-9](./PA1_template_files/figure-html/unnamed-chunk-9.png) 
+
+```r
 summary(steps_day_full)
+```
+
+```
+##       date             total_steps   
+##  Min.   :2012-10-01   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 9819  
+##  Median :2012-10-31   Median :10766  
+##  Mean   :2012-10-31   Mean   :10766  
+##  3rd Qu.:2012-11-15   3rd Qu.:12811  
+##  Max.   :2012-11-30   Max.   :21194
 ```
 
 As it is shown in the previous plot, the distribution has changed from the original one that included NA, which is specially significan in the central value of the plot. Even though, the mean, minimum and maximum do not change, and the median almost remain the same (see 'data_full' and 'data' summaries included before). 
@@ -114,7 +170,8 @@ As it is shown in the previous plot, the distribution has changed from the origi
 
 As required, a new factor variable 'weekday' is included with the information of the type of day of the week ('weekend' or 'weekday'). As the name of the days returned by 'weekdays()' function depend on the language of the PC, the function format has been used, as it returns numbers.
 
-```{r}
+
+```r
 data_full$weekday <- ifelse(format(data_full$date, format = "%w") %in% c(0,5), "weekend", "weekday")
 ```
 
@@ -123,10 +180,13 @@ data_full$weekday <- ifelse(format(data_full$date, format = "%w") %in% c(0,5), "
 
 To create the double plot required, the first step is create a new variable 'steps_interval_wd' grouping by 'interval' and 'weekday' and applying the mean. Its attributes are renamed to be meaninful and finally the plot is created using ggplot2.
 
-```{r}
+
+```r
 steps_interval_wd <- aggregate(data_full$steps, by= list(data_full$interval, data_full$weekday), FUN=mean, na.rm=TRUE)
 names(steps_interval_wd) <- c("interval", "weekday", "avg_steps")
 ggplot(steps_interval_wd, aes(x=interval, y=avg_steps)) + facet_grid(weekday ~ .) + geom_line(colour = "#0000FF") + labs(x = "5-minutes time interval") + labs(y = "Average number of steps") + labs(title = "Average number of steps per 5-minute time interval") 
 ```
+
+![plot of chunk unnamed-chunk-11](./PA1_template_files/figure-html/unnamed-chunk-11.png) 
 
 As no more task are required to be included in the 'Rmd' file, the file finish here.
