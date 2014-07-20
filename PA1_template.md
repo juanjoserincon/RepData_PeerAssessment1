@@ -49,6 +49,25 @@ ggplot(steps_day, aes(x=total_steps)) + geom_histogram(binwidth = 1000, colour="
 
 ![plot of chunk unnamed-chunk-3](./PA1_template_files/figure-html/unnamed-chunk-3.png) 
 
+```r
+dev.copy(png, file = "figures/plot1.png", width = 480, height = 480)
+```
+
+```
+## png 
+##   3
+```
+
+```r
+dev.off() 
+```
+
+```
+## pdf 
+##   2
+```
+
+
 2. *Calculate and report the mean and median total number of steps taken per day*
 
 First, a summary is included to provide a more complete idea of the data. This summay include information regarding mean and median.
@@ -92,6 +111,24 @@ ggplot(steps_interval, aes(x=interval, y=avg_steps)) + geom_line(colour = "#0000
 ```
 
 ![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
+
+```r
+dev.copy(png, file = "figures/plot2.png", width = 480, height = 480)
+```
+
+```
+## png 
+##   3
+```
+
+```r
+dev.off()
+```
+
+```
+## pdf 
+##   2
+```
 
 2. *Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
 
@@ -149,6 +186,24 @@ ggplot(steps_day_full, aes(x=total_steps)) + geom_histogram(binwidth = 1000, col
 ![plot of chunk unnamed-chunk-9](./PA1_template_files/figure-html/unnamed-chunk-9.png) 
 
 ```r
+dev.copy(png, file = "figures/plot3.png", width = 480, height = 480)
+```
+
+```
+## png 
+##   3
+```
+
+```r
+dev.off()
+```
+
+```
+## pdf 
+##   2
+```
+
+```r
 summary(steps_day_full)
 ```
 
@@ -184,9 +239,27 @@ To create the double plot required, the first step is create a new variable 'ste
 ```r
 steps_interval_wd <- aggregate(data_full$steps, by= list(data_full$interval, data_full$weekday), FUN=mean, na.rm=TRUE)
 names(steps_interval_wd) <- c("interval", "weekday", "avg_steps")
-ggplot(steps_interval_wd, aes(x=interval, y=avg_steps)) + facet_grid(weekday ~ .) + geom_line(colour = "#0000FF") + labs(x = "5-minutes time interval") + labs(y = "Average number of steps") + labs(title = "Average number of steps per 5-minute time interval") 
+ggplot(steps_interval_wd, aes(x=interval, y=avg_steps)) + facet_grid(weekday ~ .) + geom_line(colour = "#0000FF") + labs(x = "5-minutes time interval") + labs(y = "Average number of steps") + labs(title = "Average number of steps per 5-minute time interval")   
 ```
 
 ![plot of chunk unnamed-chunk-11](./PA1_template_files/figure-html/unnamed-chunk-11.png) 
+
+```r
+dev.copy(png, file = "figures/plot4.png", width = 480, height = 480)
+```
+
+```
+## png 
+##   3
+```
+
+```r
+dev.off()
+```
+
+```
+## pdf 
+##   2
+```
 
 As no more task are required to be included in the 'Rmd' file, the file finish here.
